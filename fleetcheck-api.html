@@ -1,0 +1,808 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>FleetCheck API Documentation</title>
+</head>
+<body>
+
+    <h1>FleetCheck API Documentation - v1.4</h1>
+
+    <h2>Assets</h2>
+    <h3>GET /FleetCheck/v1.4/Assets/GetAllAssetIds</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>categoryIds</code> (query): array of integers (int32)</li>
+        <li><code>includeInactive</code> (query): boolean</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: AllAssetIdsForAssetsResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Assets/GetAssetIdByRegistrationOrIdNumber</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>registrations</code> (query, required): array of strings</li>
+        <li><code>includeInactive</code> (query): boolean</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: AllAssetIdsForAssetsResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Assets/GetDetails</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>assetIds</code> (query, required): array of integers (int32)</li>
+        <li><code>includeChildAssets</code> (query): boolean</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: AssetDetailsResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Assets/GetKeyDates</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>assetIds</code> (query, required): array of integers (int32)</li>
+        <li><code>includeChildAssets</code> (query): boolean</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: AssetKeyDatesResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Assets/GetAssetIdByThirdPartyId</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>thirdPartyIds</code> (query, required): array of integers (int32)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: AssetIdByThirdPartyIdResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Assets/GetAlerts</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>assetIds</code> (query, required): array of integers (int32)</li>
+        <li><code>statusId</code> (query): integer (int32)</li>
+        <li><code>startDate</code> (query): string (date-time)</li>
+        <li><code>endDate</code> (query): string (date-time)</li>
+        <li><code>includeChildAssets</code> (query): boolean</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: AssetAlertsResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Assets/GetAllAssetTypes</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong> None</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: AllAssetTypesResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Assets/GetOwnershipTypes</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong> None</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: AllOwnershipTypesResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Assets/GetDiscardReasons</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong> None</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: AllDiscardReasonsResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+
+    <h2>Bookings</h2>
+    <h3>GET /FleetCheck/v1.4/Bookings/GetByAssetId</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>assetIds</code> (query, required): array of integers (int32)</li>
+        <li><code>startDate</code> (query): string (date-time)</li>
+        <li><code>endDate</code> (query): string (date-time)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: BookingsByAssetIdResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Bookings/GetByBookingId</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>bookingIds</code> (query, required): array of integers (int32)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: BookingsByBookingIdResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Bookings/GetBookingAuditTrail</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>bookingIds</code> (query): array of integers (int32)</li>
+        <li><code>startDate</code> (query): string (date-time)</li>
+        <li><code>endDate</code> (query): string (date-time)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: BookingAuditTrailResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Bookings/GetStatus</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>bookingIds</code> (query, required): array of integers (int32)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: BookingStatusResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Bookings/GetAllBookingStatuses</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong> None</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: AllBookingStatusesResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>POST /FleetCheck/v1.4/Bookings/CreateBooking</h3>
+    <p><strong>Method:</strong> POST</p>
+    <p><strong>Request Body:</strong> CreateBookingRequestModel</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: CreateBookingResponseModelApiResponseModel</p>
+    <hr>
+
+    <h3>POST /FleetCheck/v1.4/Bookings/UpdateBooking</h3>
+    <p><strong>Method:</strong> POST</p>
+    <p><strong>Request Body:</strong> UpdateBookingRequestModel</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: ApiSuccessResponseModelApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Bookings/GetWorkItemsByAssetId</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>assetIds</code> (query, required): array of integers (int32)</li>
+        <li><code>workItemId</code> (query): integer (int32)</li>
+        <li><code>workItemTypeId</code> (query): integer (int32)</li>
+        <li><code>isCompleted</code> (query): boolean</li>
+        <li><code>startDate</code> (query): string (date-time)</li>
+        <li><code>endDate</code> (query): string (date-time)</li>
+        <li><code>excludeNullDates</code> (query): boolean</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: BookingWorkItemsByAssetIdResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Bookings/GetAllWorkItemTypes</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong> None</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: AllWorkItemTypesResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>POST /FleetCheck/v1.4/Bookings/AddWorkItem</h3>
+    <p><strong>Method:</strong> POST</p>
+    <p><strong>Request Body:</strong> AddBookingWorkItemRequestModel</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: Int32ApiResponseModel</p>
+    <hr>
+
+    <h3>DELETE /FleetCheck/v1.4/Bookings/DeleteWorkItem</h3>
+    <p><strong>Method:</strong> DELETE</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>workItemId</code> (query, required): integer (int32)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: ApiSuccessResponseModelApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Bookings/GetExceptionTypes</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong> None</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: BookingExceptionTypesResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Bookings/GetExceptionReasonsByType</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>exceptionTypeId</code> (query, required): integer (int32)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: BookingExceptionReasonsResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Bookings/GetExceptionStatuses</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong> None</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: BookingExceptionStatusesResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>POST /FleetCheck/v1.4/Bookings/CreateException</h3>
+    <p><strong>Method:</strong> POST</p>
+    <p><strong>Request Body:</strong> CreateBookingExceptionRequestModel</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: CreateBookingExceptionResponseModelApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Bookings/GetExceptionsByBookingId</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>bookingIds</code> (query, required): array of integers (int32)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: BookingExceptionsByBookingIdResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+
+    <h2>Defects</h2>
+    <h3>GET /FleetCheck/v1.4/Defects/GetByAssetId</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>assetIds</code> (query, required): array of integers (int32)</li>
+        <li><code>statusId</code> (query): integer (int32)</li>
+        <li><code>startDate</code> (query): string (date-time)</li>
+        <li><code>endDate</code> (query): string (date-time)</li>
+        <li><code>includeChildAssets</code> (query): boolean</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: DefectsByAssetIdResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Defects/GetAllDefectStatuses</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong> None</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: AllDefectStatusResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Defects/GetByDefectId</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>defectIds</code> (query, required): array of integers (int32)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: DefectByDefectIdDetailsResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>POST /FleetCheck/v1.4/Defects/UpdateDefect</h3>
+    <p><strong>Method:</strong> POST</p>
+    <p><strong>Request Body:</strong> UpdateDefectRequestModel</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: ApiSuccessResponseModelApiResponseModel</p>
+    <hr>
+
+
+    <h2>Documents</h2>
+    <h3>GET /FleetCheck/v1.4/Documents/GetByAssetId</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>assetIds</code> (query, required): array of integers (int32)</li>
+        <li><code>statusId</code> (query): integer (int32)</li>
+        <li><code>startDate</code> (query): string (date-time)</li>
+        <li><code>endDate</code> (query): string (date-time)</li>
+        <li><code>includeChildAssets</code> (query): boolean</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: DocumentsByAssetIdResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Documents/GetByDefectId</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>defectIds</code> (query, required): array of integers (int32)</li>
+        <li><code>statusId</code> (query): integer (int32)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: DocumentsByDefectIdResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Documents/GetByDocumentId</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>documentIds</code> (query, required): array of integers (int32)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: DocumentsByDocumentIdResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Documents/GetFileContents</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Summary:</strong> Retrieves the document file contents by its document ID. Note that this endpoint does not follow the usual API response format. Instead, it returns the document file contents as a stream with content type 'application/octet-stream'.</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>documentId</code> (query, required): integer (int32)</li>
+    </ul>
+    <p><strong>Response:</strong> OK</p>
+    <hr>
+
+
+    <h2>Drivers</h2>
+    <h3>GET /FleetCheck/v1.4/Drivers/GetAllDrivers</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong> None</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: AllDriverIdsForDriversResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Drivers/GetDriverIdByFullName</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>fullNames</code> (query, required): array of strings</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: AllDriverIdsForDriversResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Drivers/GetDetails</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>driverIds</code> (query, required): array of integers (int32)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: DriverDetailsResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Drivers/GetLicenceDetails</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>driverIds</code> (query, required): array of integers (int32)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: DriverLicenceDetailsResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Drivers/GetDriverManagerInfo</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>driverIds</code> (query, required): array of integers (int32)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: DriverManagerDetailsResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Drivers/GetVehicles</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>driverIds</code> (query, required): array of integers (int32)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: DriverVehiclesResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Drivers/GetVehicleHistory</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>driverIds</code> (query, required): array of integers (int32)</li>
+        <li><code>startDate</code> (query): string (date-time)</li>
+        <li><code>endDate</code> (query): string (date-time)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: DriverVehicleHistoryResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Drivers/GetIncidents</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>driverIds</code> (query, required): array of integers (int32)</li>
+        <li><code>startDate</code> (query): string (date-time)</li>
+        <li><code>endDate</code> (query): string (date-time)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: DriverIncidentsResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Drivers/GetMedicalChecks</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>driverIds</code> (query, required): array of integers (int32)</li>
+        <li><code>startDate</code> (query): string (date-time)</li>
+        <li><code>endDate</code> (query): string (date-time)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: DriverMedicalChecksResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Drivers/GetQualifications</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>driverIds</code> (query, required): array of integers (int32)</li>
+        <li><code>startDate</code> (query): string (date-time)</li>
+        <li><code>endDate</code> (query): string (date-time)</li>
+        <li><code>includeHistoric</code> (query): boolean</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: DriverQualificationsResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>POST /FleetCheck/v1.4/Drivers/UpdateDriverName</h3>
+    <p><strong>Method:</strong> POST</p>
+    <p><strong>Request Body:</strong> UpdateDriverNameRequestModel</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: ApiSuccessResponseModelApiResponseModel</p>
+    <hr>
+
+    <h3>POST /FleetCheck/v1.4/Drivers/UpdateDriverAddress</h3>
+    <p><strong>Method:</strong> POST</p>
+    <p><strong>Request Body:</strong> UpdateDriverAddressRequestModel</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: ApiSuccessResponseModelApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Drivers/GetFitToDriveResponses</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>driverId</code> (query): integer (int32)</li>
+        <li><code>startDate</code> (query, required): string (date-time)</li>
+        <li><code>endDate</code> (query, required): string (date-time)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: FitToDriveResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+
+    <h2>Fuel</h2>
+    <h3>GET /FleetCheck/v1.4/Fuel/GetAllFuelTypes</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong> None</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: AllFuelTypesResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Fuel/GetAllFuelCards</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong> None</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: AllFuelCardsResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Fuel/GetFuelTransactionsByAssetId</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>assetIds</code> (query, required): array of integers (int32)</li>
+        <li><code>startDate</code> (query): string (date-time)</li>
+        <li><code>endDate</code> (query): string (date-time)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: FuelTransactionsByAssetIdResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+
+    <h2>Hgvs</h2>
+    <h3>GET /FleetCheck/v1.4/Hgvs/GetHgvPotDetails</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>assetIds</code> (query, required): array of integers (int32)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: HgvPotDetailsResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+
+    <h2>Inspections</h2>
+    <h3>GET /FleetCheck/v1.4/Inspections/GetSafetyInspectionsByAssetId</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>assetIds</code> (query, required): array of integers (int32)</li>
+        <li><code>startDate</code> (query): string (date-time)</li>
+        <li><code>endDate</code> (query): string (date-time)</li>
+        <li><code>includeChildAssets</code> (query): boolean</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: SafetyInspectionsByAssetIdResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Inspections/GetMobileInspectionsByChecksheetId</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>checksheetIds</code> (query, required): array of integers (int32)</li>
+        <li><code>startDate</code> (query): string (date-time)</li>
+        <li><code>endDate</code> (query): string (date-time)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: MobileInspectionsByChecksheetIdResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Inspections/GetMobileInspectionLinesByMobileInspectionId</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>mobileInspectionIds</code> (query, required): array of integers (int32)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: MobileInspectionLinesByMobileInspectionIdResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Inspections/GetMobileInspectionsSinceMobileInspectionId</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>mobileInspectionId</code> (query, required): integer (int32)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: MobileInspectionsSinceMobileInspectionIdResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Inspections/GetMobileInspectionsByDateRange</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>startDate</code> (query, required): string (date-time)</li>
+        <li><code>endDate</code> (query, required): string (date-time)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: MobileInspectionsByDateRangeResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+
+    <h2>MobileApp</h2>
+    <h3>GET /FleetCheck/v1.4/MobileApp/GetAllCheckSheets</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong> None</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: AllChecksheetsResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+
+    <h2>Organisation</h2>
+    <h3>GET /FleetCheck/v1.4/Organisation/GetAllCategories</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong> None</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: AllCategoriesResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Organisation/GetAllCostCentres</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong> None</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: AllCostCentresResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Organisation/GetAllDepartments</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong> None</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: AllDepartmentsResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Organisation/GetAllSites</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong> None</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: AllSitesResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+
+    <h2>Partner</h2>
+    <h3>GET /FleetCheck/v1.4/Partner/GetFleetList</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong> None</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: FleetListResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Partner/GetFleetAssetList</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>fleetIds</code> (query, required): array of integers (int32)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: FleetAssetListResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+
+    <h2>Suppliers</h2>
+    <h3>GET /FleetCheck/v1.4/Suppliers/GetAllSuppliers</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong> None</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: AllSuppliersResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Suppliers/GetExternalSupplierIdByPartnerId</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>partnerSupplierIds</code> (query, required): array of integers (int32)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: ExternalSupplierIdByPartnerIdResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Suppliers/GetPartnerSupplierIdByExternalId</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>externalSupplierIds</code> (query, required): array of strings</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: PartnerSupplierIdByExternalIdResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+
+    <h2>Vehicles</h2>
+    <h3>GET /FleetCheck/v1.4/Vehicles/GetAllAssetIds</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>categoryIds</code> (query): array of integers (int32)</li>
+        <li><code>includeInactive</code> (query): boolean</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: AllAssetIdsForVehiclesResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Vehicles/GetAssetIdByRegistration</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>registrations</code> (query, required): array of strings</li>
+        <li><code>includeInactive</code> (query): boolean</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: AllAssetIdsForVehiclesResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Vehicles/GetDetails</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>assetIds</code> (query, required): array of integers (int32)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: VehicleDetailsResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Vehicles/GetKeyDates</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>assetIds</code> (query, required): array of integers (int32)</li>
+        <li><code>includeChildAssets</code> (query): boolean</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: VehicleKeyDatesResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Vehicles/GetMotHistory</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>assetIds</code> (query, required): array of integers (int32)</li>
+        <li><code>passed</code> (query): boolean</li>
+        <li><code>startDate</code> (query): string (date-time)</li>
+        <li><code>endDate</code> (query): string (date-time)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: VehicleMotHistoryResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Vehicles/GetForwardSchedule</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>assetIds</code> (query, required): array of integers (int32)</li>
+        <li><code>startDate</code> (query): string (date-time)</li>
+        <li><code>endDate</code> (query): string (date-time)</li>
+        <li><code>includeChildAssets</code> (query): boolean</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: VehicleForwardScheduleResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Vehicles/GetVorDetails</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>assetIds</code> (query): array of integers (int32)</li>
+        <li><code>categoryIds</code> (query): array of integers (int32)</li>
+        <li><code>startDate</code> (query, required): string (date-time)</li>
+        <li><code>endDate</code> (query, required): string (date-time)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: VehicleVorDetailsResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>POST /FleetCheck/v1.4/Vehicles/UpdateCurrentMileage</h3>
+    <p><strong>Method:</strong> POST</p>
+    <p><strong>Request Body:</strong> UpdateCurrentMileageRequestModel</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: ApiSuccessResponseModelApiResponseModel</p>
+    <hr>
+
+    <h3>POST /FleetCheck/v1.4/Vehicles/AddVehicle</h3>
+    <p><strong>Method:</strong> POST</p>
+    <p><strong>Request Body:</strong> AddVehicleRequestModel</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: Int32ApiResponseModel</p>
+    <hr>
+
+    <h3>POST /FleetCheck/v1.4/Vehicles/DiscardVehicle</h3>
+    <p><strong>Method:</strong> POST</p>
+    <p><strong>Request Body:</strong> DiscardVehicleRequestModel</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: BooleanApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Vehicles/GetVehicleUnitTypes</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong> None</p>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: VehicleUnitTypesResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Vehicles/GetServiceHistory</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>assetIds</code> (query, required): array of integers (int32)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: VehicleServiceHistoryResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Vehicles/GetCambeltHistory</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>assetIds</code> (query, required): array of integers (int32)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: VehicleCambeltHistoryResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Vehicles/GetFinancePurchaseDetails</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>assetIds</code> (query): array of integers (int32)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: FinancePurchaseDetailsResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+    <h3>GET /FleetCheck/v1.4/Vehicles/GetFinanceDetails</h3>
+    <p><strong>Method:</strong> GET</p>
+    <p><strong>Parameters:</strong></p>
+    <ul>
+        <li><code>assetIds</code> (query): array of integers (int32)</li>
+    </ul>
+    <p><strong>Response:</strong> OK (application/json)</p>
+    <p>Schema: FinanceDetailsResponseModelIEnumerableApiResponseModel</p>
+    <hr>
+
+
+</body>
+</html>
