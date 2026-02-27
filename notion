@@ -1,0 +1,971 @@
+## Document control:
+
+| Version | 1.7 |
+| --- | --- |
+| Last Revision | Dec 5, 2025 |
+| Author | Solution Architect |
+| Confidentiality | Restricted – Confidential |
+| Copyright & Reproduction | The information contained in this document is confidential, may be privileged, and is intended solely for the person and/or entity to which it is addressed. They are the sole property of the author. Unauthorized review, use, disclosure, or copying of this communication, or any part thereof, is strictly prohibited and illegal under the Indian Copyright Act, 1957. If you have received this document(s) in error, please return the document(s) to the sender and delete the document(s) and any copy. Talview thanks you for your cooperation. |
+
+## Change log:
+
+| Version | Date | Changed By | Log |
+| --- | --- | --- | --- |
+| 1.0 | Mar 4, 2024 | Keerthi harish | Initial document |
+| 1.1 | Mar 22, 2024 | Keerthi harish | Update booking & results response |
+| 1.2 | Mar 25, 2024 | Keerthi harish | Add phase-wise scope to attributes |
+| 1.3 | Apr 2, 2024 | @Vaishnavi Kancharlapalli   | Updated **TS4** (modified payload of webhook booking request) |
+| 1.4 | Apr 3 , 2024 | @Vaishnavi Kancharlapalli  | Updated **TS3**: modified **dob** field value format to book the session. |
+| 1.5 | May 20, 2024 | @Vaishnavi Kancharlapalli  | Added TS7(score callback API) & prod endpoints. |
+| 1.6 | Dec 3, 2025 | @Keerthi Harish  | Added sequence diagram for record & review session type |
+| 1.7 | Dec 5, 2025 | @Keerthi Harish  |  |
+
+## Sequence diagram:
+
+### Phase 1: Only with a secure browser
+
+```mermaid
+sequenceDiagram
+	participant C as Candidate
+	participant TR as Client-System
+	participant S as Surpass
+	participant PI as Proview integration
+	participant WP as Wrapper
+	participant TP as Proview
+
+	C ->> TR: Select Surpass test
+	TR ->> TP: Get access token for authentication(TS1)
+	C ->> TR: Select a time slot
+	C ->> TR: Register for the exam
+	TR ->> PI: Booking request(TS3)
+	PI ->> S: Schedule test with upsert candidate
+	S ->> PI: Get keycode and test URL
+	PI ->> TP: Generate signed wrapper link
+	PI ->> TR: Webhook to send back the signed wrapper link(TS4)
+	TR ->> C: Share the signed link with the candidate
+	C ->> C: Open the link sent
+	C ->> WP: Launch the wrapper using the signed URL
+	WP ->> WP: Completes pre-flight checks
+	WP ->> WP: Passed on Surpass test link 
+	WP ->> WP: Takes the test
+	C ->> S: Completes the surpass test
+	S -->> WP: Redirect for proctoring completion
+	C -->> WP: Completes the proctored session using a button
+	S ->> PI: Webhook triggered on test completion
+	PI ->> S: Pulls results based on the test session created
+	PI ->> TR: Webhook to push score back
+```
+
+### Phase 2: With proctoring & secure browser
+
+### Record & review Proctoring + Secure browser
+
+```mermaid
+sequenceDiagram
+	participant C as Candidate
+	participant TR as Client-System
+	participant S as Surpass
+	participant PI as Proview integration
+	participant WP as Wrapper
+	participant TP as Proview
+
+	C ->> TR: Select Surpass test
+	C ->> TR: Register for the exam
+	TR ->> TP: Get access token for authentication(TS1)
+	TR ->> PI: Booking request(TS3)
+	PI ->> S: Schedule test with upsert candidate
+	S ->> PI: Get keycode and test URL
+	PI ->> TP: Generate signed wrapper link
+	PI ->> TR: Webhook to send back the signed wrapper link(TS4)
+	TR ->> C: Share the signed link with the candidate
+	C ->> C: Open the link sent
+	C ->> WP: Launch the wrapper using the signed URL
+	WP ->> WP: Completes pre-flight checks
+	WP ->> WP: Passed on Surpass test link 
+	WP ->> WP: Takes the test
+	C ->> S: Completes the surpass test
+	S -->> WP: Redirect for proctoring completion
+	C -->> WP: Completes the proctored session using a button
+	S ->> PI: Webhook triggered on test completion
+	TP ->> PI: Webhook triggered once proctor rating is updated
+	PI ->> S: Pulls results based on the test session created
+	PI ->> TP: Get proctor outcome
+	PI ->> PI: Merge proctoring + Surpass outcome
+	PI ->> TR: Webhook to push score back(TS5)
+
+```
+
+### Live proctoring + secure browser
+
+```mermaid
+sequenceDiagram
+	participant C as Candidate
+	participant TR as Client-System
+	participant S as Surpass
+	participant PI as Proview integration
+	participant WP as Wrapper
+	participant TP as Proview
+
+	C ->> TR: Select Surpass test
+	TR ->> TP: Get access token for authentication(TS1)
+	TR ->> TP: Get available slots for the given date range(TS2)
+	C ->> TR: Select a time slot
+	C ->> TR: Register for the exam
+	TR ->> PI: Booking request(TS3)
+	PI ->> S: Schedule test with upsert candidate
+	S ->> PI: Get keycode and test URL
+	PI ->> TP: Book a slot
+	PI ->> TP: Generate signed wrapper link
+	PI ->> TR: Webhook to send back the signed wrapper link(TS4)
+	TR ->> C: Share the signed link with the candidate
+	C ->> C: Open the link sent
+	C ->> WP: Launch the wrapper using the signed URL
+	WP ->> WP: Completes pre-flight checks
+	WP ->> WP: Passed on Surpass test link 
+	WP ->> WP: Takes the test
+	C ->> S: Completes the surpass test
+	S -->> WP: Redirect for proctoring completion
+	C -->> WP: Completes the proctored session using a button
+	S ->> PI: Webhook triggered on test completion
+	TP ->> PI: Webhook triggered once proctor rating is updated
+	PI ->> S: Pulls results based on the test session created
+	PI ->> TP: Get proctor outcome
+	PI ->> PI: Merge proctoring + Surpass outcome
+	PI ->> TR: Webhook to push score back(TS5)
+
+```
+
+## Technical specification:
+
+### TS1: To authenticate with Proview:
+
+Below is the API to get the access token, which needs to be used to pass as an `Authorization` header in all other request headers. 
+
+**Request Headers**:
+
+| Header | Description |
+| --- | --- |
+| Host | https://auth.talview.com |
+| Endpoint | /v1/user/login |
+| HTTP method | POST |
+| app-id | Will be shared by Talview |
+| Content-Type | application/json |
+
+**Request payload attributes definition:**
+
+| attribute | type | mandatory | description |
+| --- | --- | --- | --- |
+| username | string | true | API username shared by Talview |
+| password | string | true | API password shared by Talview |
+
+Sample request body:
+
+```bash
+
+{
+	"username": "username",
+	"password": "password"
+}
+```
+
+**Sample CURL request**:
+
+```bash
+curl --request POST \
+  --url https://auth.talview.com/v1/user/login \
+  --header 'app-id: {{app_id}}' \
+  --header 'content-type: application/json' \
+  --data '{
+		"username": "username",
+		"password": "password"
+	}'
+```
+
+---
+
+- **Response:**
+    - **Status Code: 200**
+        
+        ```bash
+        {
+        	"access_token": "<access_token>",
+        	"refresh_token": "<refresh_token>",
+        	"grant_type": "Bearer",
+        	"expires_in": 10800
+        }
+        ```
+        
+    - **Possible Errors**
+        
+        ```bash
+        {
+          "name": "Not Found",
+          "status": 404,
+          "message": "The authentication request was unsuccessful"
+        }
+        {
+        	"name": "Bad Request",
+        	"status": 400,
+        	"message": "string"
+        }
+        {
+        	"name": "Unprocessable Entity",
+        	"status": 422,
+        	"message": "string"
+        }
+        ```
+        
+
+### TS2: To get available slots for a given date range:
+
+Below is the API to get available slots for proctoring
+
+**Request Headers**:
+
+- Host:
+    - Sandbox/staging: `https://integration-trinity.talview.org`
+    - Production: `https://integration-trinity.talview.com`
+
+| Header | Description |
+| --- | --- |
+| Host | Mentioned above |
+| Endpoint | /booking/availability |
+| HTTP method | GET |
+| Content-Type | application/json |
+| Authorization | Bearer <:access_token_from_TS_1:> |
+
+**Query parameters definition:**
+
+| attribute | type | mandatory | description |
+| --- | --- | --- | --- |
+| start_time | string($date-time) | true | Start time of the slot (in UTC format) |
+| end_time | string($date-time) | true | End time of the slot (in UTC format) |
+
+**Sample CURL request**:
+
+```bash
+curl --request GET \
+  --url 'https://integration-trinity.talview.org/booking/availability?start_time=2024-03-26T00%3A30%3A00.000Z&end_time=2024-03-26T10%3A30%3A00.000Z' \
+  --header 'accept: application/json, text/plain, */*' \
+  --header 'accept-language: en-IN,en-GB;q=0.9,en;q=0.8,en-US;q=0.7' \
+  --header 'authority: delivery-nvidia-api.talview.org' \
+  --header 'authorization: <<Bearer token>>' \
+```
+
+---
+
+- **Response:**
+    - **Status Code: 200**
+        
+        ```bash
+        {
+        	"slots": [
+        		{
+        			"event_name": "5-3-3pm",
+        			"event_status": "scheduled",
+        			"event_id": 33023,
+        			"id": 98972,
+        			"starts_at": "2024-03-05T10:30:00.000Z",
+        			"ends_at": "2024-03-05T11:30:00.000Z",
+        			"status": "scheduled",
+        			"duration": "3600.000000",
+        			"num_candidate": 0,
+        			"bookings_available": 4
+        		}
+        	]
+        }
+        ```
+        
+    - **Possible Errors**
+        
+        ```bash
+        {
+        	"name": "Bad Request",
+        	"status": 400,
+        	"message": "string"
+        }
+        {
+        	"name": "Unprocessable Entity",
+        	"status": 422,
+        	"message": "string"
+        }
+        ```
+        
+    
+    <aside>
+    💡 Note: [Slot.id](http://Slot.id) from this API’s response will have to be sent in the booking request as schedule.slot_id
+    
+    </aside>
+    
+
+### TS3: To book a session on Proview:
+
+Below is the API to book a live proctored or secure browser session on Proview.
+
+### Request Header:
+
+- Host:
+    - Sandbox/staging: `https://integration-trinity.talview.org`
+    - Production: `https://integration-trinity.talview.com`
+
+| Attribute | value |
+| --- | --- |
+| Host | Mentioned above |
+| Endpoint | **/booking/create** |
+| HTTP method | POST |
+| Authorization | Bearer <:access_token> |
+| app-id | Will be shared by Talview |
+| Content-Type | application/json |
+
+### **Request payload attributes definition:**
+
+| Parameters | Phase | Type | Mandatory | Description |  |
+| --- | --- | --- | --- | --- | --- |
+| candidate | 1 | object | true | Candidate details |  |
+| candidate/first_name | 1 | string | true | First name of the candidate |  |
+| candidate/last_name | 1 | string | true | Last name of the candidate |  |
+| candidate/middle_name | 1 | string | optional | Middle name of the candidate |  |
+| candidate/email | 1 | string | optional | Email of the candidate |  |
+| candidate/external_id | 1 | string | true | Trinity’s candidate ID can be sent to this field, which will be used as the Surpass candidate’s reference  |  |
+| candidate/dob | 1 | date | true | Date of birth of the candidate. allowed Format: MM/DD/YYYY |  |
+| proctoring | 2 | object | true | Proctoring details for scheduling live proctoring sessions on Proview |  |
+| proctoring/enabled | 2 | boolean | true | Flag to enable or disable proctoring |  |
+| proctoring/type | 2 | string | optional | Type of proctor session. value: `  or live_proctor |  |
+| proctoring/slot_id | 2 | integer | optional | Slot selected by the candidate from the available slots API. Mandatory when `proctoring/type` is `live_proctor` |  |
+| secure_browser | 1 | object | true | Secure browser configurations |  |
+| secure_browser/enabled | 1 | boolean | true | Flag to enable/disable Secure browser for the flow |  |
+| schedule | 1 | object | true | Schedule details of the booking request which will be used for Surpass test scheduling |  |
+| schedule/start_date | 1 | string | true | Start date of the Surpass test. Format: DD/MM/YYYY |  |
+| schedule/end_date | 1 | string | true | End date of Surpass test. Format: DD/MM/YYYY.  |  |
+| schedule/start_time | 1 | string | true | Start time of the Surpass test. Format: HH:mm |  |
+| schedule/end_time | 1 | string | true | End time of the Surpass test. Format: HH:mm |  |
+| schedule/proctor_token | 1 | string | true | Proctor token that will be shared by Talview |  |
+| test | 1 | object | true | Surpass test details |  |
+| test/type | 1 | string | true | Type of test integration. Value: `surpass` |  |
+| test/centre_id | 1 | integer | true | Surpass test center ID to schedule Surpass test  |  |
+| test/test_id | 1 | integer | optional | Surpass test ID to schedule Surpass test |  |
+| test/reference_id | 1 | string | true | Surpass test reference ID to schedule a Surpass test |  |
+| test/subject_id | 1 | integer | optional | Surpass subject ID to schedule Surpass test |  |
+| unlock_override | 1 | Object | optional | Overrides to applied for Surpass test. Ref `unlockOverride` object in the below API documentation
+https://help.surpass.com/developer/surpass-api-v2/api-v2-reference/test-administration/testschedule-api/ |  |
+
+### Sample CURL request:
+
+```jsx
+
+curl --request POST \
+  --url https://integration-trinity.talview.org/booking/create \
+  --header 'Authorization: "Bearer <<access_token>>",
+  --header 'Content-Type: application/json' \
+  --data '{
+		"candidate": {
+			"first_name": "Keerthi",
+			"last_name": "Harish",
+			"middle_name": "",
+			"dob": "12/03/2003",
+			"email": "keerthi.h+3@talview.com",
+			"external_id": "customers_candidate_id"
+		},
+		"proctoring": {
+			"enabled": true,
+			"type": "record_and_review"
+		},
+		"secure_browser": {
+			"enabled": true
+		},
+		"schedule": {
+			"start_date": "01/03/2024",
+			"end_date": "01/03/2024",
+			"start_time": "10:00",
+			"end_time": "11:00",
+			"proctor_token": "proctor_token"
+		},
+		"test": {
+			"type": "surpass",
+			"centre_id": 68,
+			"test_id": 301,
+			"reference_id": "ref-1",
+			"subject_id": 120,
+			"unlock_override": {
+      "unlock_for_whole_day": true
+    }
+		}
+	}'
+
+Sample response Payload:
+
+{
+	"acknowledgement_id": "uuid"
+}
+```
+
+Note: `acknowledgement_id` sent in the response will be the receipt for the booking request and it’ll be sent back in the webhook request payload. 
+
+### TS4: Webhook for successful booking request:
+
+The customer must provide an API that supports the HTTP post method, which will be triggered once a booking request is successful with the following payload.
+
+```jsx
+{
+	"acknowledgement_id": "uuid",
+  "exam_url": "https://tinyurl.com/28ky5lwh",
+  "booking_status": "successful", //allowed values : [successfull,failed]
+	"proctoring": {
+		"enabled": "true",
+		"type": "record_and_review"
+	},
+	"secure_browser": {
+		"enabled": true
+	},
+	"errors": null , //will receive an error message if the booking request process is failed
+  "test_schedule_response": {
+    "id": 3768,
+    "href": "https://trinityexams.surpass.com/api/v2/TestSchedule/3768",
+    "errors": null,
+    "keycode": "X3QPQ35M",
+    "serverTimeZone": "GMT Standard Time",
+    "candidate": {
+      "id": 2960,
+      "reference": "ref-from-trinity-100"
+    }
+  }
+}
+```
+
+### TS5: Webhook for pushing back the proctoring or Surpass results:
+
+The customer must provide an API that supports the HTTP post method, which will be triggered once proctoring or Surpass results are available. 
+
+### **Request schema:**
+
+| Attribute | Description |  |
+| --- | --- | --- |
+| acknowledgement_id | uuid generated as acknowledgement for booking session |  |
+| secure_browser | secure_browser configuration passed when booking a session |  |
+| proctoring_outcome | Proctoring session details and results |  |
+| proctoring_outcome.session_uuid | Talview’s Proctoring session ID, can we used to generate embedded playback view(TS6). |  |
+| proctoring_outcome.session_status | Status of the Procting session. 
+1. Completed
+2. Reviewed |  |
+| proctoring_outcome.session_completed_at | The time when of session was marked as completed. 
+Sample value: 2024-03-05T13:11Z
+Format: ISO 8601 timestamp in UTC |  |
+| proctoring_outcome.proctor_rating | Rating generated by system or updated by the proctors after review is complete. 
+Possible values:
+1. High
+2. Medium
+3. Low |  |
+| proctoring_outcome.proctor_remarks | Predefined disposition selected by Proctor as part of Review.  |  |
+| proctoring_outcome.terminated | Boolean value to know if session was terminated.  |  |
+| proctoring_outcome.termination_reason | Reason provided when session is being terminated by the proctor.  |  |
+| surpass_outcome | Results fetched by `/api/v2/Result/{id}` API.
+API reference: [Link](https://help.surpass.com/developer/surpass-api-v2/api-v2-reference/test-administration/result-api/#2) |  |
+
+### Sample payloads:
+
+### When the proctoring session is completed
+
+```jsx
+{
+	"acknowledgement_id": "uuid",
+  "secure_browser": {
+    "is_enabled": true
+  },
+  "proctoring": {
+    "is_enabled": true,
+    "type": "record_and_review",
+  },
+  "proctoring_outcome": {
+		"session_uuid": "<uuid>",
+		"session_status": "Completed"
+		"session_completed_at": "2024-03-05T13:11:49.452Z",
+    "proctor_rating": "high",
+    "proctor_remarks": null,
+    "terminated": false,
+    "termination_reason": null
+  }
+}
+```
+
+### When the proctor completes the proctoring session review
+
+```jsx
+{
+	"acknowledgement_id": "uuid",
+  "secure_browser": {
+    "is_enabled": true
+  },
+  "proctoring": {
+    "is_enabled": true,
+    "type": "record_and_review",
+  },
+  "proctoring_outcome": {
+		"session_uuid": "<uuid>",
+		"session_status": "Reviewed"
+		"session_completed_at": "2024-03-05T13:11:49.452Z",
+    "proctor_rating": "Medium",
+    "proctor_remarks": "Comment given while proctor reviews and modify the system generated proctor rating",
+    "terminated": false,
+    "termination_reason": null
+  }
+}
+```
+
+### When the Surpass test session review is complete & marked
+
+```jsx
+{
+	"acknowledgement_id": "uuid",
+  "secure_browser": {
+    "is_enabled": true
+  },
+  "proctoring": {
+    "is_enabled": true,
+    "type": "record_and_review",
+  },
+  "proctoring_outcome": {
+		"session_uuid": "<uuid>",
+		"session_status": "Completed|Reviewed"
+		"session_completed_at": "2024-03-05T13:11:49.452Z",
+    "proctor_rating": "high",
+    "proctor_remarks": "Comment given while proctor reviews and modify the system generated proctor rating",
+    "terminated": true,
+    "termination_reason": "Reason provided by proctor to terminate a candidate"
+  },
+  "surpass_outcome": {
+		"scaleScoreMapping": null,
+		"test": {
+			"reference": "WrL01AR165650",
+			"name": "Fake Writing Test 01",
+			"id": 1,
+			"href": "https://testtrinityexams.btlsurpass.com/api/v2/Test/1"
+		},
+		"testForm": {
+			"reference": "01 WrL01AR165650",
+			"name": "Fake Writing test form 1",
+			"id": 1,
+			"href": "https://testtrinityexams.btlsurpass.com/api/v2/TestForm/1"
+		},
+		"subject": {
+			"reference": "8Sxkz7bMIWFk",
+			"name": "Writing",
+			"id": 2,
+			"href": "https://testtrinityexams.btlsurpass.com/api/v2/Subject/2"
+		},
+		"externalReference": "",
+		"passMark": 0.0,
+		"passMarkType": "Percentage",
+		"percentageMark": 0.0,
+		"passPercentage": 0.0,
+		"IRTScore": null,
+		"passIRTScore": null,
+		"keycode": "T8K9HPNB",
+		"resultsReleased": false,
+		"resultsSampled": false,
+		"scaleScore": null,
+		"pass": true,
+		"durationMode": "Timed",
+		"isManuallySubmittedInLocal": false,
+		"sections": [
+			{
+				"id": 1,
+				"name": "A",
+				"mark": 0.0,
+				"percentageMark": 0.0,
+				"availableMarks": 1,
+				"pass": true,
+				"passMark": 0.0,
+				"passPercentage": 0.0,
+				"passIRTScore": null,
+				"passMarkType": "Percentage",
+				"IRTScore": null,
+				"viewingTime": 0,
+				"items": [
+					{
+						"name": "DW_T1C_XX_0001",
+						"version": 7,
+						"mark": 0.0,
+						"awardedMark": 0.0,
+						"availableMarks": 1,
+						"viewingTime": "",
+						"learningOutcome": "",
+						"markBreakdown": [],
+						"unit": "",
+						"surpassReference": "5001P5",
+						"nonScored": false,
+						"type": "Question",
+						"candidateResponse": {
+							"Value": ""
+						},
+						"itemResponse": {
+							"multipleChoiceQuestions": [],
+							"href": "https://testtrinityexams.btlsurpass.com/api/v2/Result/55/ItemResponse/5001P5",
+							"multipleResponseQuestions": [],
+							"eitherOrQuestions": [],
+							"unsupportedQuestionTypes": [],
+							"voiceCaptureQuestions": [],
+							"fileAttachQuestions": [],
+							"likertQuestions": [],
+							"tbsQuestions": [],
+							"dragAndDropQuestions": [],
+							"numericalEntryQuestions": [],
+							"shortAnswerQuestions": [],
+							"extendedMatchingQuestions": [],
+							"hotSpotQuestions": [],
+							"essayQuestions": [
+								{
+									"type": "None",
+									"awardedMark": 0.0,
+									"id": "5001P5",
+									"weighting": 1.0,
+									"attempted": false,
+									"candidateResponse": {
+										"response": ""
+									}
+								}
+							],
+							"selectFromAListQuestions": [],
+							"itemVersion": 7
+						},
+						"marker": null,
+						"displayNumber": "1",
+						"markingType": "1",
+						"itemSetId": null,
+						"itemSetName": null
+					}
+				],
+				"sectionSelectorId": null,
+				"selected": null,
+				"startTime": null,
+				"endTime": null,
+				"isPoolTimeSection": false,
+				"poolName": null,
+				"isSurveySection": false,
+				"decisionPoint": null
+			},
+			{
+				"id": 2,
+				"name": "B",
+				"mark": 0.0,
+				"percentageMark": 0.0,
+				"availableMarks": 1,
+				"pass": true,
+				"passMark": 0.0,
+				"passPercentage": 0.0,
+				"passIRTScore": null,
+				"passMarkType": "Percentage",
+				"IRTScore": null,
+				"viewingTime": 0,
+				"items": [
+					{
+						"name": "DW_T2R_21_0002",
+						"version": 4,
+						"mark": 0.0,
+						"awardedMark": 0.0,
+						"availableMarks": 1,
+						"viewingTime": "",
+						"learningOutcome": "",
+						"markBreakdown": [],
+						"unit": "",
+						"surpassReference": "5001P2",
+						"nonScored": false,
+						"type": "Question",
+						"candidateResponse": {
+							"Value": ""
+						},
+						"itemResponse": {
+							"multipleChoiceQuestions": [],
+							"href": "https://testtrinityexams.btlsurpass.com/api/v2/Result/55/ItemResponse/5001P2",
+							"multipleResponseQuestions": [],
+							"eitherOrQuestions": [],
+							"unsupportedQuestionTypes": [],
+							"voiceCaptureQuestions": [],
+							"fileAttachQuestions": [],
+							"likertQuestions": [],
+							"tbsQuestions": [],
+							"dragAndDropQuestions": [],
+							"numericalEntryQuestions": [],
+							"shortAnswerQuestions": [],
+							"extendedMatchingQuestions": [],
+							"hotSpotQuestions": [],
+							"essayQuestions": [
+								{
+									"type": "None",
+									"awardedMark": 0.0,
+									"id": "5001P2",
+									"attempted": false
+								},
+								{
+									"type": "None",
+									"awardedMark": 0.0,
+									"id": "5001P2",
+									"weighting": 1.0,
+									"attempted": false,
+									"candidateResponse": {
+										"response": ""
+									}
+								}
+							],
+							"selectFromAListQuestions": [],
+							"itemVersion": 4
+						},
+						"marker": null,
+						"displayNumber": "1",
+						"markingType": "1",
+						"itemSetId": null,
+						"itemSetName": null
+					}
+				],
+				"sectionSelectorId": null,
+				"selected": null,
+				"startTime": null,
+				"endTime": null,
+				"isPoolTimeSection": false,
+				"poolName": null,
+				"isSurveySection": false,
+				"decisionPoint": null
+			}
+		],
+		"centre": {
+			"id": 2,
+			"reference": "4VtrITKMIkTA",
+			"href": "https://testtrinityexams.btlsurpass.com/api/v2/Centre/2"
+		},
+		"candidate": {
+			"id": 22,
+			"reference": "AlinaR_QR",
+			"href": "https://testtrinityexams.btlsurpass.com/api/v2/Candidate/22"
+		},
+		"mark": 0.0,
+		"availableMarks": 2,
+		"grade": "Voided",
+		"startedDate": null,
+		"submittedDate": "2023-06-21T00:00:00",
+		"warehousedDate": "2023-06-21T00:00:13.28",
+		"id": 55,
+		"reference": "T8K9HPNB",
+		"href": "https://testtrinityexams.btlsurpass.com/api/v2/Result/55",
+		"learningOutcomeThreshold": 50,
+		"learningOutcomeBoundariesApplied": false,
+		"learningOutcomes": [],
+		"learningOutcomeBoundaries": [],
+		"sectionSelectors": [],
+		"IRTDomain": [],
+		"examWindowStartTime": "2023-06-14T00:00:00",
+		"allowedDuration": 45,
+		"reasonableAdjustments": {
+			"totalTimeAdded": 0,
+			"reasonForAdjustment": ""
+		},
+		"re-mark": "No",
+		"voidReason": "Auto Void, absent",
+		"actualDuration": 45,
+		"cutScoreAvailableMarks": 0,
+		"purchaseOrder": "",
+		"started": false,
+		"isReview": false,
+		"downloads": []
+	}
+}
+```
+
+### TS6: To create a Proctoring session’s embedded playback view:
+
+**Request Headers**:
+
+| Header | Description |
+| --- | --- |
+| Host | [https://proctoring.talview.com](https://proctoring.talview.com/) |
+| Endpoint | /v1/token/playback |
+| HTTP method | POST |
+| app-id | Will be shared by Talview |
+| Content-Type | application/json |
+
+**Request payload attributes definition:**
+
+| attribute | type | mandatory | description |
+| --- | --- | --- | --- |
+| proctor_token | string | true | Will be shared by Talview |
+| session_uuid | string | true | Value of proctoring_outcome.session_uuid received from TS5 |
+
+Sample request body:
+
+```bash
+{
+	"proctor_token": "proctor_token",
+	"session_uuid": "TS5.proctoring_outcome.session_uuid"
+}
+```
+
+**Sample CURL request**:
+
+```bash
+curl --request POST \
+  --url https://proctoring.talview.com/v1/token/playback \
+  --header 'Content-Type: application/json' \
+  --header 'app-id: <:app-id:>' \
+  --data '{
+		"proctor_token": "proctor_token",
+		"session_uuid": "TS5.proctoring_outcome.session_uuid"
+	}'
+```
+
+Sample response payload:
+
+```jsx
+{
+	"token": "<:playback_token:>",
+	"session_uuid": "TS5.proctoring_outcome.session_uuid",
+	"valid_till": "2024-03-05T13:11:49.452Z"
+}
+```
+
+The generated token should be included in the URL format [`https://console.eu.proview.io/embedded](https://console.eu.proview.io/embedded)[/<:TS5.proctoring_outcome.session_uuid>?token=<:playback_token:>](https://console.eu.proview.io/session/%3C:TS5.proctoring_outcome.session_uuid%3E?token=%3C:playback_token:%3E)` to access the authenticated proview playback session view. 
+
+### TS7: Score Callback from Surpass external activator
+
+⇒ The Talview team provided the following endpoint to the **Surpass external activator t**o inform about the test results of a booking.
+
+### Endpoint:
+
+staging: https://integration-trinity.talview.org/callback/surpass-results/306
+
+production: https://integration-trinity.talview.com/callback/surpass-results/346
+
+**Request Headers**:
+
+| Header | Description |
+| --- | --- |
+| Endpoint  | mentioned above |
+| HTTP method | POST |
+| Content-Type | application/json |
+
+### Sample CURL request:
+
+```jsx
+curl --request POST \
+  --url https://integration-trinity.talview.com/callback/surpass-results/346 \
+  --data '{
+  "Url": "https://testtrinityexams.btlsurpass.com/api/v2/Result/KVCG8GNB",
+  "Data": {
+    "KeyCode": "KVCG8GNB",
+    "ExamState": "13"
+  },
+  "Date": "2024-04-16T00:00:58.177",
+  "EventType": 0
+}'
+```
+
+### **TS8: Get** Session Details and Alert Logs
+
+- **Base URL:** `https://proctoring.talview.com`
+- **Endpoint**: `/v1/session/<<session_uuid>>`
+- **Method**: `GET`
+- **Headers**:
+    - `app-id: {{app_id}}`
+    - `authorization: Bearer {{access_token}}`
+    
+
+The response contains comprehensive session information, including:
+- Alert logs
+- Attendee information
+- Session status and rating
+- Face and photo ID images (if captured)
+
+### Accessing Key Information
+
+- **Session Rating**: Access via `response → session → final_rating`
+- **Face Image**: Download from URL at `response → attendee → identification → face`  and store it with extension as `.png`
+- **Photo ID**: Download from URL at `response → attendee → identification → photo_id` and store it with extension as `.png`
+
+[List of Flags - Talview Proctoring (External)](https://www.notion.so/List-of-Flags-Talview-Proctoring-External-4065ef655e2442e2b8aa1a4f0c342834?pvs=21)
+
+[Flag IDs](https://www.notion.so/Flag-IDs-2e73461472f380708e94e1bfb31d52db?pvs=21)
+
+- **Example**:
+    
+    ```bash
+    curl --request GET \
+      --url https://proctoring.talview.com/v1/session/<:session_uuid:> \
+      --header 'Authorization: Bearer {{access_token}}' \
+      --header 'app-id: {{app_id}}' \
+    ```
+    
+- **Response:**
+    - **Status Code: 200**
+        
+        ```bash
+        {
+          "alerts": [
+            {
+              "id": "07715b57-b0ad-4c36-a520-f39df2eae152",
+              "alert_type_id": 3,
+              "description": "Session Joined",
+              "timestamp": "2024-07-17T06:52:21.374Z",
+              "browser": "Firefox",
+              "device_family": null,
+              "os": "Mac OS",
+              "ip": "49.204.67.58",
+              "browser_version": "128.0",
+              "os_version": "10.15",
+              "created_at": "2024-07-17T06:52:21.877Z",
+              "updated_at": "2024-07-17T06:52:21.877Z",
+              "name": "Session Joined",
+              "severity": "none"
+            },
+            // ... other alerts
+          ],
+        	"attendee": {
+        		"id": 960850,
+        		"first_name": "",
+        		"middle_name": "",
+        		"last_name": "",
+        		"email": "",
+        		"external_attendee_id": "rojen_testing",
+        		"organization_id": 292,
+        		"additional_properties": null,
+        		"identification": {
+        			"face_time": "2025-04-16T08:25:54.920Z",
+        			"photo_id_time": "2025-04-16T08:25:41.437Z",
+        			"face": "https://euproctoringapi.blob.core.windows.net/identification/attendee/960850/photo_1744791954904?sv=2023-11-03&st=2025-04-16T08%3A27%3A21Z&se=2025-04-17T08%3A27%3A21Z&sr=b&sp=rc&sig=",
+        			"photo_id": "https://euproctoringapi.blob.core.windows.net/identification/attendee/960850/photo_id_1744791941387?sv=2023-11-03&st=2025-04-16T08%3A27%3A21Z&se=2025-04-17T08%3A27%3A21Z&sr=b&sp="
+        		}
+        	},
+          "session": {
+            "id": 619340,
+            "uuid": "e0c4ddae-bc7a-4f5d-ad0d-a663ba5f1b41",
+            "title": "Talview testing",
+            "external_id": "khs-2",
+            "type": "ai_proctor",
+            "final_rating": "high",
+            "status": "created",
+            "attendee_id": 722527,
+            "proview_rating_stale": false,
+            "session_started_at": "2024-07-17T06:52:21.453Z",
+            "rating_modified": false,
+            "rating_modified_reason": null,
+            "rating_modified_at": null,
+            "photo": null
+          }
+        }
+        ```
+        
+    - **Possible Errors**
+        
+        ```bash
+        {
+        	"name": "Malformed request syntax",
+        	"status": 400,
+        	"message": "string"
+        }
+        {
+        	"name": "Please provide a valid authorization token",
+        	"status": 401,
+        	"message": "string"
+        	}
+        {
+        	"name": "Resource not found",
+        	"status": 404,
+        	"message": "string"
+        }
+        ```
